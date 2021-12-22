@@ -20,8 +20,8 @@ void add_record(User *pUser){
     pUser->diary.subject[strcspn(pUser->diary.subject, "\n")] = 0;
     printf("Note: ");
     fgets(pUser->diary.note, sizeof(pUser->diary.note), stdin);
-    pUser->diary.note[strcspn(pUser->diary.note, "\n")] = 0;
     FILE *fp = fopen("../Diaries.db", "ab+");
+    pUser->diary.number = sizeof("../Diaries.db");
     fwrite(pUser, sizeof(User), 1, fp);
     printf("Successfully added record.\n");
     exit(0);  
@@ -30,29 +30,62 @@ void add_record(User *pUser){
 void view_record(User *pUser){
     char buf[2];
     int choice;
+    User tmp_user;
     printf("*******************\n");
     printf("* Viewing records *\n");
     printf("*******************\n\n");
-    printf("1. View today's records\n");
-    printf("2. View all records\n");
-    printf("3. Back\n")
-    printf(">: ");
-    fgets(buf, sizeof(buf), stdin);
-    if(sscanf(buf, "%d", &choice) != 1){
-        printf("Please enter an integer.\n");
-        exit(0);
-    }
     while(choice != 3){
+        printf("1. View today's records\n");
+        printf("2. View all records\n");
+        printf("3. Back\n");
+        printf(">: ");
+        fgets(buf, sizeof(buf), stdin);
+        if(sscanf(buf, "%d", &choice) != 1){
+            printf("Please enter an integer.\n");
+            exit(0);
+        }
         switch(choice){
             case 1:
                 
                 break;
             case 2:
-
+                FILE *fp = fopen("../Diaries.db", "rb");
+                if (fp == NULL){
+                    printf("There are no records yet. Please create one.\n");
+                    exit(0);
+                }
+                for (int i = 0; i < sizeof("../Diaries.db"); i++){
+                    if (fread(&tmp_user, sizeof(User), 1, fp) == EOF){
+                        break;
+                    }
+                    if (strcmp(pUser->name, tmp_user.name) == 0 && tmp_user.diary.number == sizeof("../Diaries.db")){
+                        printf("\nDate: %d", tmp_user.diary.year);
+                        if (tmp_user.diary.month < 10){
+                            printf("-0%d", tmp_user.diary.month);
+                        }
+                        else{
+                            printf("-%d", tmp_user.diary.month);
+                        }
+                        if (tmp_user.diary.day < 10){
+                            printf("-0%d\n", tmp_user.diary.day);
+                        }
+                        else{
+                            printf("-%d\n", tmp_user.diary.day);
+                        }
+                        printf("Subject: %s\n", tmp_user.diary.subject);
+                        printf("Note: ");
+                        for (int j = 0; j < sizeof(tmp_user.diary.note); j++){
+                            printf("%c", tmp_user.diary.note[j]);
+                            if (tmp_user.diary.note[j] == '\n'){
+                                break;
+                            }
+                        }
+                    }
+                }
+                fclose(fp);
                 break;
-        }
-    }
-    
+       }
+    }        
 } 
 
 void delete_record(){
@@ -122,7 +155,7 @@ void diary_menu(User *puser){
             add_record(puser);
             break;
         case 2:
-            view_record();
+            view_record(puser);
             break;
         case 3:
             delete_record();

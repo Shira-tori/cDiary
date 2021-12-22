@@ -2,7 +2,7 @@
 #define STRUCTS_H
 
 typedef struct Diary{
-    int year, month, day, hour, minute;
+    int year, month, day, hour, minute, number;
     char subject[256];
     char note[1024];
 } Diary;

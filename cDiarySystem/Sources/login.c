@@ -21,17 +21,15 @@ User login(User user){
     fgets(tmp_user.pass, sizeof(buf), stdin);
     tmp_user.pass[strcspn(tmp_user.pass, "\n")] = 0;
     for (int i = 0; i < sizeof("../Accounts.db"); i++){
-        fread(&user, sizeof(User), 1, fp);
+        fread(&user, sizeof(user), 1, fp);
         if (strcmp(tmp_user.name, user.name) == 0 && strcmp(tmp_user.pass, user.pass) == 0){
             
             printf("Logged in successfully.\n");
             return user;
         }
-        if (i == sizeof("../Accounts.db")-1){
-            printf("Log in failed.\n");
-            exit(0);
-        }
     }
+    printf("%d\n", sizeof("../Accounts.db"));
+    exit(0);
     fclose(fp);
 }
 
@@ -47,7 +45,7 @@ void create_account(User user){
     user.name[strcspn(user.name, "\n")] = 0;
     printf("Enter your password: ");
     fgets(user.pass, sizeof(buf), stdin);
-    user.pass[strcspn(user.name, "\n")] = 0;
+    user.pass[strcspn(user.pass, "\n")] = 0;
     for (int i = 0; i < sizeof("../Accounts.db"); i++){
         fread(&tmp_user, sizeof(User), 1, fp);
         if (strcmp(tmp_user.name, user.name) == 0){
@@ -55,11 +53,8 @@ void create_account(User user){
             exit(0);
         }
     }
-    fseek(fp, sizeof(User), SEEK_SET);
     fwrite(&user, sizeof(User), 1, fp);
     fclose(fp);
-    printf("%s %s!\n", user.name, user.pass);
-    printf("%d", sizeof(buf));
     printf("Account successfully created.\n");
     exit(0);
 }
